@@ -86,4 +86,31 @@ object Queries {
         FROM readings
             JOIN sensors ON readings.sensorId = sensors.sensorId
     """.trimIndent()
+
+    val SENSOR_READINGS_STATS_VIEW = """
+        CREATE VIEW readings_stats AS 
+            SELECT 
+                eventTime_ltz,
+                sensorId, 
+                reading,
+                ROUND(AVG(reading) OVER minuteInterval, 1) AS minuteAvgTemp,
+                MAX(reading) OVER minuteInterval AS minuteMinTemp,
+                MIN(reading) OVER minuteInterval AS minuteMaxTemp,
+                ROUND(STDDEV(reading) OVER minuteInterval, 5) AS minuteStdevTemp
+            FROM readings 
+            WINDOW minuteInterval AS (
+                PARTITION BY sensorId
+                ORDER BY eventTime_ltz
+                RANGE BETWEEN INTERVAL '1' MINUTE PRECEDING AND CURRENT ROW 
+            );
+    """.trimIndent()
+
+    val READINGS_FILTER = """
+        SELECT 
+            sensorId,
+            reading,
+            ROUND(minuteAvgTemp + 2 * minuteStdevTemp, 2) as threshold 
+        FROM readings_stats
+        WHERE reading > minuteAvgTemp + 2 * minuteStdevTemp
+    """.trimIndent()
 }
