@@ -18,7 +18,7 @@ fun main() = SensorProducer.runProducer()
 object SensorProducer {
     private val logger: KLogger by lazy { KotlinLogging.logger {} }
 
-    private const val sensorNum = 5
+    private const val sensorNum = 10
     private const val totalSensorReadings = 10000
     private const val sensorInfoTopic = "sensor.info"
     private const val sensorReadingsTopic = "sensor.readings"
