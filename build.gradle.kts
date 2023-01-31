@@ -1,12 +1,13 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val kafka_version: String by project
-val flink_version: String by project
-val logback_version: String by project
-val confluent_json_version: String by project
-val klogging_version: String by project
-val serialization_version: String by project
-val faker_version: String by project
+val kafkaVersion: String by project
+val flinkVersion: String by project
+val logbackVersion: String by project
+val confluentJsonVersion: String by project
+val kloggingVersion: String by project
+val serializationVersion: String by project
+val fakerVersion: String by project
+val rocksDBVersion: String by project
 
 plugins {
     kotlin("jvm") version "1.7.21"
@@ -24,25 +25,25 @@ repositories {
 }
 
 dependencies {
-    implementation("org.apache.kafka:kafka-clients:$kafka_version")
-    implementation("io.confluent:kafka-json-serializer:$confluent_json_version")
-    implementation("org.rocksdb:rocksdbjni:7.6.0")
+    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
+    implementation("io.confluent:kafka-json-serializer:$confluentJsonVersion")
+    implementation("org.rocksdb:rocksdbjni:$rocksDBVersion")
 
 //    implementation("org.apache.flink:flink-clients:$flink_version")
-    implementation("org.apache.flink:flink-runtime-web:$flink_version")
+    implementation("org.apache.flink:flink-runtime-web:$flinkVersion")
 //    implementation("org.apache.flink:flink-connector-kafka:$flink_version")
-    implementation("org.apache.flink:flink-statebackend-rocksdb:$flink_version")
-    implementation("org.apache.flink:flink-json:$flink_version")
+    implementation("org.apache.flink:flink-statebackend-rocksdb:$flinkVersion")
+    implementation("org.apache.flink:flink-json:$flinkVersion")
 
-    implementation("org.apache.flink:flink-table-api-java-bridge:$flink_version")
-    implementation("org.apache.flink:flink-table-planner_2.12:$flink_version")
+    implementation("org.apache.flink:flink-table-api-java-bridge:$flinkVersion")
+    implementation("org.apache.flink:flink-table-planner_2.12:$flinkVersion")
 
-    implementation("org.apache.flink:flink-sql-connector-kafka:$flink_version")
+    implementation("org.apache.flink:flink-sql-connector-kafka:$flinkVersion")
 
-    implementation("io.github.microutils:kotlin-logging:$klogging_version")
-    implementation("com.github.javafaker:javafaker:$faker_version")
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serialization_version")
+    implementation("io.github.microutils:kotlin-logging:$kloggingVersion")
+    implementation("com.github.javafaker:javafaker:$fakerVersion")
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
 
     testImplementation(kotlin("test"))
 }

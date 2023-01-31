@@ -18,7 +18,7 @@ fun main() = SensorProducer.runProducer()
 object SensorProducer {
     private val logger: KLogger by lazy { KotlinLogging.logger {} }
 
-    private const val sensorNum = 100
+    private const val sensorNum = 5
     private const val totalSensorReadings = 10000
     private const val sensorInfoTopic = "sensor.info"
     private const val sensorReadingsTopic = "sensor.readings"
@@ -38,14 +38,14 @@ object SensorProducer {
         val sensorReadingProducer = KafkaProducer<String, SensorReading>(properties)
 
         logger.info { "Generating $sensorNum sensor information ..." }
-        sensorInfo.forEach { handleMessage(sensorInfoProducer, sensorInfoTopic, it.id, it) }
+        sensorInfo.forEach { handleMessage(sensorInfoProducer, sensorInfoTopic, it.sensorId, it) }
 
         logger.info { "Generating $totalSensorReadings sensor readings ..." }
         // Generate 100.000 readings for those sensors
         var count = 0
         for (i in 0 until totalSensorReadings) {
             val reading = DataGenerator.generateSensorReading(sensorNum)
-            handleMessage(sensorReadingProducer, sensorReadingsTopic, reading.id, reading)
+            handleMessage(sensorReadingProducer, sensorReadingsTopic, reading.sensorId, reading)
             count += 1
             if (count % 1000 == 0) {
                 logger.info { "Total so far $count." }

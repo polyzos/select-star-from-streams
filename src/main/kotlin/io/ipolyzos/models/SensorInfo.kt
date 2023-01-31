@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SensorInfo(
-    val id: String,
+    val sensorId: String,
     val latitude: String,
     val longitude: String,
     val sensorType: String,

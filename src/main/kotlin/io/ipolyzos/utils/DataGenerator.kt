@@ -13,15 +13,15 @@ object DataGenerator {
     private val random = Random()
     private val sensorIdCounter = AtomicInteger(1)
     private val types: List<String> = listOf(
-        "TEMPERATURE",
-        "PROXIMITY"
+        "TEMPERATURE"
+//        "PROXIMITY"
     )
 
     fun generateSensorReading(maxId: Int): SensorReading {
-        Thread.sleep(random.nextInt(50).toLong())
+        Thread.sleep(random.nextInt(500).toLong())
         return SensorReading(
-            id = faker.number().numberBetween(0, maxId).toString(),
-            reading = 40 + random.nextGaussian(), //faker.number().randomDouble(2, 1, 45),
+            sensorId = faker.number().numberBetween(0, maxId).toString(),
+            reading = ((40 + random.nextGaussian()) * 10).toInt() / 10.0, //faker.number().randomDouble(2, 1, 45),
             timestamp = Timestamp(System.currentTimeMillis() - 1000000).time
         )
     }
@@ -34,7 +34,7 @@ object DataGenerator {
 
     private fun generateSensorInfo(): SensorInfo {
         return SensorInfo(
-            id = (sensorIdCounter.getAndIncrement()).toString(),
+            sensorId = (sensorIdCounter.getAndIncrement()).toString(),
             latitude = faker.address().latitude(),
             longitude = faker.address().longitude(),
             sensorType = types[faker.number().numberBetween(0, types.size)],

@@ -23,7 +23,7 @@ class EnrichmentStream {
         val environment = StreamExecutionEnvironment
             .createLocalEnvironmentWithWebUI(Configuration())
 
-        environment.parallelism = 1
+        environment.parallelism = 3
 
         // Checkpoint Configurations
         environment.enableCheckpointing(5000)
@@ -68,12 +68,7 @@ class EnrichmentStream {
             .print()
 
         tableEnvironment
-            .executeSql("""
-                SELECT * 
-                FROM readings
-                    LEFT JOIN sensors ON readings.id = sensors.id 
-            """.trimIndent())
+            .executeSql(Queries.JOIN_SENSOR_READINGS_WITH_INFO_QUERY)
             .print()
-
     }
 }

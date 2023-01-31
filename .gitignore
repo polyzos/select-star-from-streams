@@ -3,3 +3,4 @@
 build/
 checkpoints/
 state/
+.DS_Store

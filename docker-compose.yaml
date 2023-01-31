@@ -26,7 +26,7 @@ services:
       - zookeeper
   jobmanager:
     build: .
-    image: flink:latest
+#    image: flink:latest
     container_name: jobmanager
     ports:
       - "8081:8081"
@@ -36,8 +36,8 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
   taskmanager:
-    image: flink:latest
-    container_name: taskmanager
+    build: .
+#    image: flink:latest
     depends_on:
       - jobmanager
     command: taskmanager
