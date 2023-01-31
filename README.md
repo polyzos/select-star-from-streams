@@ -1,2 +1,2 @@
-Depths Of Flink
----------------
+SELECT star FROM streams
+------------------------
