@@ -2,19 +2,25 @@ version: "3.7"
 services:
   zookeeper:
     image: bitnami/zookeeper:3.8.0
+    container_name: zookeeper
     ports:
       - "2181:2181"
     environment:
       ALLOW_ANONYMOUS_LOGIN: "yes"
   kafka:
     image: bitnami/kafka:3.3.1
+    container_name: kafka
     ports:
       - "9092:9092"
+      - "1099:1099"
     environment:
       KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
       ALLOW_PLAINTEXT_LISTENER: "yes"
       KAFKA_ADVERTISED_PORT: 9092
       KAFKA_ADVERTISED_HOST_NAME: kafka
+#      KAFKA_JMX_PORT: 9997
+      JMX_PORT: 1099
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka -Dcom.sun.management.jmxremote.rmi.port=1099"
       KAFKA_LISTENERS: >-
         INTERNAL://:29092,EXTERNAL://:9092
       KAFKA_ADVERTISED_LISTENERS: >-
@@ -24,23 +30,63 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
     depends_on:
       - zookeeper
+  jmxexporter:
+    image: sscaling/jmx-prometheus-exporter
+    container_name: jmxexporter
+    ports:
+      - "5556:5556"
+    environment:
+      SERVICE_PORT: 5556
+    volumes:
+      - ./prometheus/jmxexporter.yml:/opt/jmx_exporter/config.yml
+    depends_on:
+      - kafka
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/config.yaml'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - ./prom_data:/prometheus
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=grafana
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
   jobmanager:
     build: .
 #    image: flink:latest
     container_name: jobmanager
     ports:
       - "8081:8081"
+      - "9249:9249"
     command: jobmanager
     environment:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
+        metrics.reporters: prom
+        metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+        metrics.reporter.prom.port: 9249
   taskmanager:
     build: .
 #    image: flink:latest
     depends_on:
       - jobmanager
     command: taskmanager
+    ports:
+      - "9250:9249"
     deploy:
       replicas: 1
     environment:
@@ -48,3 +94,6 @@ services:
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
         taskmanager.numberOfTaskSlots: 1
+        metrics.reporters: prom
+        metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+        metrics.reporter.prom.port: 9249

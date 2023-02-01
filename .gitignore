@@ -4,3 +4,5 @@ build/
 checkpoints/
 state/
 .DS_Store
+prom_data/
+jars/
